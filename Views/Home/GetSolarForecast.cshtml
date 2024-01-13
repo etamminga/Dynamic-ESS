@@ -1,0 +1,18 @@
+﻿@{
+    ViewData["Title"] = "Get Solar Forecast";
+}
+@model Dynamic_ESS.SolarForecast.SolarForecast
+
+<div>
+<a asp-action="GetSolarForecast" asp-controller="Home">GetSolarForecast()</a>
+</div>
+
+<ul>
+ 
+@foreach( var foreCast in Model.EnergyPeriods)
+{
+<li>
+    From: @foreCast.From To: @foreCast.To. Expected Energy: @foreCast.EnergyExpected kWh
+</li>
+}
+</ul>

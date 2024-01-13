@@ -1,0 +1,98 @@
+﻿@{
+    ViewData["Title"] = "Calculate";
+}
+@using Newtonsoft.Json
+@model Dynamic_ESS.Models.AlgorithmResponseModel
+
+<div><canvas id="chart"></canvas></div>
+
+<div>
+    <h3>Change the battery between:</h3>
+    <ul>
+        @foreach( var chargeWindow in Model.ChargePeriods)
+        {
+        <li>
+            @chargeWindow.From - @chargeWindow.To
+        </li>
+        }
+    </ul>
+</div>
+
+@section styles {
+    <!--<link rel="stylesheet" href="~/lib/chartjs/chart.css" />-->
+}
+@section scripts {
+    <script src="~/lib/chartjs/dist/chart.umd.min.js" asp-append-version="true"></script>
+
+    <script>
+
+    $( document ).ready(function() {
+        const ctx = document.getElementById('chart');
+
+        const data = @Html.Raw( JsonConvert.SerializeObject(Model.Data, Formatting.Indented));
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data.map( row => row.X),
+                datasets: [{
+                    label: 'Price',
+                    data: data.map( row => row.Price),
+                    borderWidth: 1
+                },
+                {
+                    label: 'PriceDayAverage',
+                    data: data.map( row => row.PriceDayAverage),
+                    borderWidth: 1,
+                    type: 'line'
+                },
+                {
+                    label: 'SoC',
+                    data: data.map( row => row.BatterySoCCalculated),
+                    borderWidth: 1,
+                    type: 'line',
+                    yAxisID: 'SoC'
+                },
+                {
+                    label: 'SoC Charged',
+                    data: data.map( row => row.BatterySoCDiffCharged),
+                    borderWidth: 1,
+                    yAxisID: 'SoC'
+                },
+                {
+                    label: 'SoC With algo',
+                    data: data.map( row => row.PredictedSoCWhileCharging),
+                    borderWidth: 1,
+                    type: 'line',
+                    yAxisID: 'SoC'
+                },
+                {
+                    label: 'Solar',
+                    data: data.map( row => row.SolarYield),
+                    borderWidth: 1,
+                    yAxisID: 'Solar'
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    },
+                    Solar: {
+                        position: 'right',
+                        min: 0,
+                        max: 12
+                    },
+                    SoC: {
+                        position: 'right',
+                        min: 0,
+                        max: 100
+                    }
+                }
+            }
+        });
+    });
+
+    </script>
+
+}

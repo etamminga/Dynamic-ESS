@@ -1,0 +1,58 @@
+﻿@{
+    ViewData["Title"] = "Get Prices";
+}
+@using Newtonsoft.Json
+@model Dynamic_ESS.EnergyPrices.EnergyPrices
+
+<div>
+<a asp-action="GetPrices" asp-controller="Home">GetPrices()</a>
+</div>
+
+<div><canvas id="chart"></canvas></div>
+
+<ul>
+ 
+@foreach( var priceInTime in Model.Prices)
+{
+<li>
+    @priceInTime.Time, EUR: @priceInTime.Price
+</li>
+}
+</ul>
+
+@section styles {
+    <!--<link rel="stylesheet" href="~/lib/chartjs/chart.css" />-->
+}
+@section scripts {
+    <script src="~/lib/chartjs/dist/chart.umd.min.js" asp-append-version="true"></script>
+
+    <script>
+
+    $( document ).ready(function() {
+        const ctx = document.getElementById('chart');
+
+        const data = @Html.Raw( JsonConvert.SerializeObject(Model.Prices, Formatting.Indented));
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data.map( row => row.Time),
+                datasets: [{
+                    label: 'Price',
+                    data: data.map( row => row.Price),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    });
+
+    </script>
+
+}
